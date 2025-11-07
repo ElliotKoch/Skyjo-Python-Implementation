@@ -38,7 +38,7 @@ class Deck:
         # Randomly shuffle the deck
         random.shuffle(self.cards)
 
-    def draw(self):
+    def draw_card(self):
         # Draw one card from the deck
         if not self.cards:
             self.reshuffle_discard()
