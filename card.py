@@ -1,5 +1,5 @@
 # card.py
-class Card:
+class Card: 
     def __init__(self, value: int):
         # Each card has a numeric value and a visibility state
         self.value = value
