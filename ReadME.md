@@ -1,3 +1,12 @@
+skyjo/
+│
+├── main.py               # Point d'entrée du programme
+├── game.py               # Gestion de la partie (cartes, pioches, tours…)
+├── player.py             # Classe Joueur (cartes, score, actions)
+├── card.py               # Classe Carte (valeur, état caché/révélé)
+└── deck.py               # Classe Paquet (distribution, pioche, défausse)
+
+
 ## ⚙️ Installation & Setup
 To run the project, follow these steps with Python version 3.11.9:
 
