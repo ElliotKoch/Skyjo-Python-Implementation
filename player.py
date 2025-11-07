@@ -10,9 +10,9 @@ class Player:
         self.score: int = 0
         self.held_card: Optional["Card"] = None  # Temporary card drawn during the turn
 
-    def setup(self, deck: "Deck"):
+    def setup_grid(self, deck: "Deck"):
         # Deal 12 face-down cards (4 columns x 3 rows)
-        self.grid = [[deck.draw() for _ in range(4)] for _ in range(3)]
+        self.grid = [[deck.draw_card() for _ in range(4)] for _ in range(3)]
 
     def reveal_card(self, row: int, col: int) -> bool:
         # Reveal a specific card chosen by the player
@@ -26,7 +26,7 @@ class Player:
         # Draw a card from the draw pile and hold it temporarily
         if self.held_card is not None:
             return None  # Cannot draw twice in the same turn
-        self.held_card = deck.draw()
+        self.held_card = deck.draw_card()
         return self.held_card
 
     def draw_from_discard(self, deck: "Deck") -> Optional["Card"]:
@@ -46,7 +46,7 @@ class Player:
             return False
 
         target_card = self.grid[row][col]
-        deck.discard(target_card)
+        deck.discard_card(target_card)
 
         self.grid[row][col] = self.held_card
         self.grid[row][col].reveal()
@@ -57,7 +57,7 @@ class Player:
         # Discard the held card without replacing
         if self.held_card is None:
             return False
-        deck.discard(self.held_card)
+        deck.discard_card(self.held_card)
         self.held_card = None
         return True
 
@@ -77,7 +77,7 @@ class Player:
         self.score = total
         return total
 
-    def all_revealed(self) -> bool:
+    def all_cards_revealed(self) -> bool:
         # Check if all cards are face up
         return all(card.revealed for row in self.grid for card in row)
 
