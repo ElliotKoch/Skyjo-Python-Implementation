@@ -64,3 +64,17 @@ class Game:
             if player.all_cards_revealed():
                 return True
         return False
+    
+    def reset_round(self):
+        # Reset deck, discard pile, and player grids for a new round.
+        # Recreate a new deck
+        self.deck = Deck()
+        self.discard_pile = self.deck.discard_pile
+
+        # Reset turn order and phase
+        if self.current_player_index < len(self.players)-1 :
+            self.current_player_index += 1
+        else: 
+            self.current_player_index = 0
+        self.phase = "setup"    
+        self.start_game()
