@@ -64,6 +64,10 @@ class GameWindow(tk.Tk):
             # Draw player grid
             for r, row in enumerate(player.grid):
                 for c, card in enumerate(row):
+                    # ignorer les colonnes supprimées
+                    if card is None:
+                        continue
+
                     x0 = start_x + c * (CARD_WIDTH + MARGIN)
                     y0 = y_offset + r * (CARD_HEIGHT + MARGIN)
                     x1 = x0 + CARD_WIDTH
@@ -236,36 +240,43 @@ class GameWindow(tk.Tk):
             return
 
     def end_turn(self):
+        self.action_phase = "choose_pile"
         current = self.game.get_current_player()
         current.held_card = None
 
-        # Check end of round
+        # Check triple columns before checking end of round
+        messages = []
+        for player in self.game.players:
+            messages.extend(player.check_triple_columns(self.game.discard_pile))
+
+        if messages:
+            for msg in messages:
+                self.update_info(msg)
+            self.draw_board()
+
+        # Then normal round end logic
         if self.game.check_end_round():
-            # Reveal all cards and update scores
             for player in self.game.players:
                 for row in player.grid:
                     for card in row:
-                        card.reveal()
+                        if card is not None:
+                            card.reveal()
+                        messages = current.check_triple_columns(self.game.discard_pile)
+                        if messages:
+                            for msg in messages:
+                                self.update_info(msg)
+                            self.draw_board()
                 player.calculate_score()
 
-            # Check if someone has 100 or more points
             if any(p.score >= 100 for p in self.game.players):
                 winner = min(self.game.players, key=lambda p: p.score)
-                self.action_phase = "game_over"  # 🔴 Prevent any further interaction
-                self.draw_board()
                 self.update_info(f"Game Over! Winner: {winner.name}")
                 return
-
-            # If game not over → show continue button for next round
             else:
-                self.action_phase = "round_end"  # 🟡 Disable input except Continue
                 self.draw_board()
                 self.update_info("Round ended! Scores updated.")
-                self.continue_button.pack()  # show CONTINUE button
-
+                self.continue_button.pack()
         else:
-            # Normal next turn
-            self.action_phase = "choose_pile"
             self.game.next_turn()
             self.draw_board()
             self.update_info()
