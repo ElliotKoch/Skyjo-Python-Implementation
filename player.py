@@ -77,7 +77,7 @@ class Player:
             for card in row:
                 if card.revealed:
                     total += card.value
-        self.score = total
+        self.score += total
         return total
 
     def all_cards_revealed(self) -> bool:
