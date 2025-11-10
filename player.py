@@ -71,11 +71,10 @@ class Player:
         return self.reveal_card(row, col)
 
     def calculate_score(self) -> int:
-        # Calculate total score of revealed cards
         total = 0
         for row in self.grid:
             for card in row:
-                if card.revealed:
+                if card is not None and card.revealed:
                     total += card.value
         self.score += total
         return total
@@ -89,3 +88,29 @@ class Player:
         display = "\n".join(" ".join(str(card) for card in row) for row in self.grid)
         held = f"Held: {self.held_card}" if self.held_card else "Held: None"
         return f"{self.name}:\n{display}\n{held}\nScore: {self.score}"
+    
+    def check_triple_columns(self, discard_pile):
+        """
+        Vérifie les colonnes contenant trois cartes identiques révélées.
+        Si trouvées : on retire ces cartes (colonne supprimée) et on place
+        une d’entre elles sur la défausse. La colonne vaut ensuite 0 point.
+        """
+        messages = []
+
+        for col in range(len(self.grid[0])):  # pour chaque colonne
+            column_cards = [self.grid[row][col] for row in range(len(self.grid))]
+
+            # Si toutes les cartes existent et sont révélées
+            if all(card is not None and card.revealed for card in column_cards):
+                values = [card.value for card in column_cards]
+                if len(set(values)) == 1:  # toutes identiques
+                    same_value = values[0]
+                    discard_pile.append(column_cards[0])  # on en met une à la défausse
+
+                    # Supprimer cette colonne (on met None)
+                    for row in range(len(self.grid)):
+                        self.grid[row][col] = None
+
+                    messages.append(f"{self.name} a éliminé une colonne de 3 cartes {same_value} !")
+
+        return messages
