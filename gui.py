@@ -22,6 +22,11 @@ class GameWindow(tk.Tk):
         self.info_label = tk.Label(self, text="", font=("Arial", 14))
         self.info_label.pack(pady=5)
 
+        self.continue_button = tk.Button(self, text="CONTINUE", font=("Arial", 14, "bold"), bg="green", fg="white",
+                                         command=self.start_new_round)
+        self.continue_button.pack(pady=10)
+        self.continue_button.pack_forget()
+
         self.action_phase = "initial_reveal"
         self.initial_reveals_done = {player.name: 0 for player in self.game.players}
         self.held_card_rect = None
@@ -42,6 +47,15 @@ class GameWindow(tk.Tk):
             name_x = MARGIN + 20
             name_y = y_offset + grid_height / 2
             self.canvas.create_text(name_x, name_y, text=player.name, font=("Arial", 16, "bold"), anchor="w")
+
+            # Draw score just below name
+            score_y = name_y + 20
+            self.canvas.create_text(
+                name_x, score_y,
+                text=f"Score: {player.score}",
+                font=("Arial", 12),
+                anchor="w"
+            )
 
             # Grid placement
             grid_width = 4 * (CARD_WIDTH + MARGIN)
@@ -222,24 +236,47 @@ class GameWindow(tk.Tk):
             return
 
     def end_turn(self):
-        self.action_phase = "choose_pile"
         current = self.game.get_current_player()
         current.held_card = None
 
         # Check end of round
         if self.game.check_end_round():
+            # Reveal all cards and update scores
             for player in self.game.players:
                 for row in player.grid:
                     for card in row:
                         card.reveal()
                 player.calculate_score()
-            self.draw_board()
-            self.update_info("Round ended! Scores updated.")
+
+            # Check if someone has 100 or more points
             if any(p.score >= 100 for p in self.game.players):
                 winner = min(self.game.players, key=lambda p: p.score)
+                self.action_phase = "game_over"  # 🔴 Prevent any further interaction
+                self.draw_board()
                 self.update_info(f"Game Over! Winner: {winner.name}")
                 return
+
+            # If game not over → show continue button for next round
+            else:
+                self.action_phase = "round_end"  # 🟡 Disable input except Continue
+                self.draw_board()
+                self.update_info("Round ended! Scores updated.")
+                self.continue_button.pack()  # show CONTINUE button
+
         else:
+            # Normal next turn
+            self.action_phase = "choose_pile"
             self.game.next_turn()
             self.draw_board()
             self.update_info()
+        
+        
+
+    def start_new_round(self):
+        # Restart a new round
+        self.continue_button.pack_forget()
+        self.game.reset_round()
+        self.initial_reveals_done = {player.name: 0 for player in self.game.players}
+        self.action_phase = "initial_reveal"
+        self.draw_board()
+        self.update_info("New round started! Reveal 2 cards.")
