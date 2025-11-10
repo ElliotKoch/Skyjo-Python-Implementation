@@ -112,7 +112,10 @@ class GameWindow(tk.Tk):
                 discard_color = "black"
 
             # Draw deck/discard for active player
-            if player == current:
+            if player == current and self.action_phase in ["choose_pile", 
+                                               "choose_replace_or_discard",
+                                               "choose_replace_or_discard_reveal",
+                                               "choose_replace_mandatory"]:
                 deck_x0 = start_x + 4 * (CARD_WIDTH + MARGIN) + 20
                 deck_y0 = y_offset
                 deck_x1 = deck_x0 + CARD_WIDTH
@@ -240,48 +243,57 @@ class GameWindow(tk.Tk):
             return
 
     def end_turn(self):
-        self.action_phase = "choose_pile"
         current = self.game.get_current_player()
         current.held_card = None
 
-        # Check triple columns before checking end of round
-        messages = []
+        # Check triple columns
         for player in self.game.players:
-            messages.extend(player.check_triple_columns(self.game.discard_pile))
+            player.check_triple_columns(self.game.discard_pile)
 
-        if messages:
-            for msg in messages:
-                self.update_info(msg)
-            self.draw_board()
+        # Handle final round
+        if self.game.final_round_triggered:
+            # Only decrement turns for players who are NOT the triggering player
+            if current != self.game.final_round_triggered_by:
+                self.game.final_turns_remaining -= 1
 
-        # Then normal round end logic
+            if self.game.final_turns_remaining > 0:
+                self.update_info(f"Final round in progress – {self.game.final_turns_remaining} turns left.")
+                self.game.next_turn()
+                # Skip the triggering player if it's their turn
+                if self.game.get_current_player() == self.game.final_round_triggered_by:
+                    self.game.next_turn()
+                self.action_phase = "choose_pile"
+                self.draw_board()
+                return
+            else:
+                # Final round over
+                self.action_phase = "round_over"
+
+        # Check normal end of round
         if self.game.check_end_round():
+            # Reveal all cards, calculate scores, show continue button
             for player in self.game.players:
                 for row in player.grid:
                     for card in row:
-                        if card is not None:
+                        if card:
                             card.reveal()
-                        messages = current.check_triple_columns(self.game.discard_pile)
-                        if messages:
-                            for msg in messages:
-                                self.update_info(msg)
-                            self.draw_board()
+                player.check_triple_columns(self.game.discard_pile)
                 player.calculate_score()
 
             if any(p.score >= 100 for p in self.game.players):
                 winner = min(self.game.players, key=lambda p: p.score)
                 self.update_info(f"Game Over! Winner: {winner.name}")
-                return
             else:
-                self.draw_board()
                 self.update_info("Round ended! Scores updated.")
                 self.continue_button.pack()
+            self.draw_board()
         else:
+            # Next turn
             self.game.next_turn()
+            self.action_phase = "choose_pile"
             self.draw_board()
             self.update_info()
-        
-        
+            
 
     def start_new_round(self):
         # Restart a new round

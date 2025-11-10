@@ -13,6 +13,10 @@ class Game:
         self.players = [Player(name) for name in player_names]
         self.current_player_index = 0
 
+        self.final_round_triggered_by = None  # the player who revealed all cards
+        self.final_round_triggered = False
+        self.final_turns_remaining = 0
+
         # Game phase: 'setup' (initial reveal) or 'play'
         self.phase = "setup"
 
@@ -60,25 +64,37 @@ class Game:
         self.discard_card(old_card)
 
     def check_end_round(self):
-        # Check if any player has all cards revealed
-        for player in self.players:
-            if player.all_cards_revealed():
-                return True
-        return False
+        # Returns True if the round is over
+        if not self.final_round_triggered:
+            # Check if any player has revealed all cards
+            for player in self.players:
+                if player.all_cards_revealed():
+                    self.final_round_triggered = True
+                    self.final_round_triggered_by = player
+                    # All other players get one final turn
+                    self.final_turns_remaining = len(self.players) - 1
+                    return False  # round not over yet
+            return False
+        else:
+            # Final round triggered: the round is over when no turns remain
+            return self.final_turns_remaining <= 0
     
     def reset_round(self):
-        # Create a brand new deck and discard pile
+        # Reset deck, discard pile, and player grids
         self.deck = Deck()
         self.discard_pile = self.deck.discard_pile
 
-        # Advance starting player
-        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        # Reset turn order and phase
+        self.current_player_index = 0
         self.phase = "setup"
 
-        # Reset players for a clean new grid
+        # Reset final round flags
+        self.final_round_triggered = False
+        self.final_turns_remaining = 0
+
+        # Reset player grids
         for player in self.players:
-            player.grid = []          # clear old grid (important)
+            player.setup_grid(self.deck)
             player.held_card = None
 
-        # Start the new round fresh
         self.start_game()
