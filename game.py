@@ -7,7 +7,7 @@ class Game:
     def __init__(self, player_names):
         # Initialize deck and discard pile
         self.deck = Deck()
-        self.discard_pile = []
+        self.discard_pile = self.deck.discard_pile
 
         # Create players
         self.players = [Player(name) for name in player_names]
@@ -16,9 +16,6 @@ class Game:
         # Game phase: 'setup' (initial reveal) or 'play'
         self.phase = "setup"
 
-        # GUI reference: a Game can have only one GUI
-        self.set_gui: "GameWindow" = None
-
     def start_game(self):
         # Deal cards to each player
         for player in self.players:
@@ -26,6 +23,7 @@ class Game:
 
         # Draw first card for discard pile
         first_card = self.deck.draw_card()
+        first_card.reveal()
         if first_card:
             self.discard_pile.append(first_card)
 
