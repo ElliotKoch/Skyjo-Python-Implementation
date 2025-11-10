@@ -20,6 +20,7 @@ class Game:
         # Deal cards to each player
         for player in self.players:
             player.setup_grid(self.deck)
+            player.held_card = None
 
         # Draw first card for discard pile
         first_card = self.deck.draw_card()
@@ -66,15 +67,18 @@ class Game:
         return False
     
     def reset_round(self):
-        # Reset deck, discard pile, and player grids for a new round.
-        # Recreate a new deck
+        # Create a brand new deck and discard pile
         self.deck = Deck()
         self.discard_pile = self.deck.discard_pile
 
-        # Reset turn order and phase
-        if self.current_player_index < len(self.players)-1 :
-            self.current_player_index += 1
-        else: 
-            self.current_player_index = 0
-        self.phase = "setup"    
+        # Advance starting player
+        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        self.phase = "setup"
+
+        # Reset players for a clean new grid
+        for player in self.players:
+            player.grid = []          # clear old grid (important)
+            player.held_card = None
+
+        # Start the new round fresh
         self.start_game()
