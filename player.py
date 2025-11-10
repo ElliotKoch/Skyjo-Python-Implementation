@@ -33,8 +33,10 @@ class Player:
         # Draw the top card from the discard pile
         # Must be replaced with one from the player's grid
         if self.held_card is not None:
+            print("top card is held")
             return None
         top_card = deck.top_discard()
+        print("top card", top_card)
         if top_card is None:
             return None
         self.held_card = deck.discard_pile.pop()
@@ -46,6 +48,7 @@ class Player:
             return False
 
         target_card = self.grid[row][col]
+        self.reveal_card(row,col)
         deck.discard_card(target_card)
 
         self.grid[row][col] = self.held_card
