@@ -90,27 +90,26 @@ class Player:
         return f"{self.name}:\n{display}\n{held}\nScore: {self.score}"
     
     def check_triple_columns(self, discard_pile):
-        """
-        Vérifie les colonnes contenant trois cartes identiques révélées.
-        Si trouvées : on retire ces cartes (colonne supprimée) et on place
-        une d’entre elles sur la défausse. La colonne vaut ensuite 0 point.
-        """
+        # Check for columns containing three identical revealed cards
         messages = []
 
-        for col in range(len(self.grid[0])):  # pour chaque colonne
+        for col in range(len(self.grid[0])):  # Iterate through each column
             column_cards = [self.grid[row][col] for row in range(len(self.grid))]
 
-            # Si toutes les cartes existent et sont révélées
+            # Check if all cards exist and are revealed
             if all(card is not None and card.revealed for card in column_cards):
                 values = [card.value for card in column_cards]
-                if len(set(values)) == 1:  # toutes identiques
+                if len(set(values)) == 1:  # All cards have the same value
                     same_value = values[0]
-                    discard_pile.append(column_cards[0])  # on en met une à la défausse
 
-                    # Supprimer cette colonne (on met None)
+                    # Place all cards from this column under the discard pile
+                    for card in column_cards:
+                        discard_pile.insert(0, card)
+
+                    # Remove this column (set cells to None)
                     for row in range(len(self.grid)):
                         self.grid[row][col] = None
 
-                    messages.append(f"{self.name} a éliminé une colonne de 3 cartes {same_value} !")
+                    messages.append(f"{self.name} eliminated a column of 3 cards {same_value}!")
 
         return messages
