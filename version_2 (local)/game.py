@@ -44,7 +44,9 @@ class Game:
     def reset_round(self):
         self.deck = Deck()
         self.discard_pile = self.deck.discard_pile
-        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        self.current_player_index = self.players.index(self.final_round_triggered_by)
+        self.next_turn()
+        print(self.current_player_index)
         self.phase = "setup"
         self.final_round_triggered = False
         self.final_turns_remaining = 0

@@ -160,7 +160,6 @@ class GameWindow(tk.Tk):
             if self.initial_reveals_done[current.name] >= 2:
                 if all(v >= 2 for v in self.initial_reveals_done.values()):
                     self.action_phase = "choose_pile"
-                    self.game.current_player_index = 0
                 else:
                     self.game.next_turn()
             self.draw_board()
