@@ -77,8 +77,8 @@ class GameWindow(tk.Tk):
 
             # Draw deck/discard for current player
             if player == current:
-                deck_color = "red" if self.action_phase == "choose_pile" and current.held_card is None else "black"
-                discard_color = "red" if self.action_phase == "choose_pile" and current.held_card is None else "black"
+                deck_color = "red" if self.action_phase == "choose_pile" else "black"
+                discard_color = "red" if self.action_phase in ("choose_pile", "choose_replace_or_discard") else "black"
 
                 deck_x0 = start_x + 4 * (CARD_WIDTH + MARGIN) + 20
                 deck_y0 = y_offset
