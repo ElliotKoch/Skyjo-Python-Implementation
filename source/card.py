@@ -1,18 +1,19 @@
 # card.py
-class Card: 
+
+class Card:
     def __init__(self, value: int):
-        # Each card has a numeric value and a visibility state
+        # Store the card's numeric value and whether it is currently revealed
         self.value = value
         self.revealed = False
 
     def reveal(self):
-        # Turn the card face up
+        # Set the card to face-up (visible)
         self.revealed = True
 
     def hide(self):
-        # Turn the card face down
+        # Set the card to face-down (hidden)
         self.revealed = False
 
     def __repr__(self):
-        # Display value if revealed, otherwise "?"
+        # String representation: show the value if revealed, otherwise "?"
         return f"[{self.value if self.revealed else '?'}]"
