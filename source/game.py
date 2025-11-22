@@ -33,7 +33,14 @@ class Game:
         return self.players[self.current_player_index]
 
     def next_turn(self):
-        # Move to the next player in circular order
+        # Advance to the next player's turn, handling final round logic
+        if self.final_round_triggered:
+            if self.current_player_index == self.final_round_triggered_by:
+                # Skip the player who triggered the final round
+                self.current_player_index = (self.current_player_index + 1) % len(self.players)
+            self.final_turns_remaining -= 1
+
+        # Move to the next player
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
 
     def check_end_round(self) -> bool:
@@ -58,10 +65,9 @@ class Game:
         self.discard_pile = self.deck.discard_pile
 
         # Next round starts with the player after the one who triggered final round
-        self.current_player_index = self.players.index(self.final_round_triggered_by)
         self.next_turn()
 
-        print(self.current_player_index)  # Debug info
+        print(self.final_round_triggered_by,self.current_player_index)  # Debug info
 
         self.phase = "setup"
         self.final_round_triggered = False
