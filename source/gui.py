@@ -93,7 +93,7 @@ class GameWindow(tk.Tk):
                         x0, y0, x1, y1, fill=fill, outline=outline, width=2
                     )
                     text = self.canvas.create_text(
-                        (x0+x1)/2, (y0+y1)/2,
+                        (x0+x1)/2, (y0+y1)/2, font=("Purisa", 20),
                         text=str(card.value) if card.revealed else "?"
                     )
 
@@ -122,7 +122,7 @@ class GameWindow(tk.Tk):
                     width=3 if deck_color == "red" else 1
                 )
                 self.canvas.create_text(deck_x0 + CARD_WIDTH//2,
-                                        deck_y0 + CARD_HEIGHT//2, text="Deck")
+                                        deck_y0 + CARD_HEIGHT//2, font=("Purisa", 16), text="Deck")
                 self.canvas.tag_bind(self.deck_rect, "<Button-1>",
                                      lambda e: self.deck_clicked())
 
@@ -144,7 +144,7 @@ class GameWindow(tk.Tk):
                     self.canvas.create_text(
                         discard_x0 + CARD_WIDTH//2,
                         discard_y0 + CARD_HEIGHT//2,
-                        text=str(top_card.value), font=("Arial", 16)
+                        text=str(top_card.value), font=("Purisa", 20)
                     )
 
                 self.canvas.tag_bind(self.discard_rect, "<Button-1>",
@@ -175,7 +175,7 @@ class GameWindow(tk.Tk):
                 x0, y0, x1, y1, fill="yellow"
             )
             self.held_card_text = self.canvas.create_text(
-                (x0+x1)/2, (y0+y1)/2, text=str(card.value)
+                (x0+x1)/2, (y0+y1)/2, text=str(card.value), font=("Purisa", 20) 
             )
 
     def update_info(self, msg=""):
